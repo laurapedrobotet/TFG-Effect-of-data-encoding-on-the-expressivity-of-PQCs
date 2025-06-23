@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#SBATCH --chdir=/scratch/nas/4/laurap/pinn_qml/scripts
+#SBATCH --output=logs/LE_1D_%A_%a.out
+#SBATCH --job-name=1D_L_vqc
+#SBATCH --array=0-239  # # 6 layers * 10 seeds * 4 tiempos 
+#SBATCH --mem=16G
+
+# Definición de listas
+layers=(1 2 4 6 8 10)
+seeds=($(seq 0 9))
+times=(0 0.3 0.5 1)
+
+# Índices
+total_seeds=${#seeds[@]}
+total_layers=${#layers[@]}
+total_times=${#times[@]}
+
+# Cálculo de índices
+layer_index=$((SLURM_ARRAY_TASK_ID / (total_seeds * total_times)))
+seed_index=$(((SLURM_ARRAY_TASK_ID / total_times) % total_seeds))
+time_index=$((SLURM_ARRAY_TASK_ID % total_times))
+
+# Parámetros
+nlayers=${layers[$layer_index]}
+random_seed=${seeds[$seed_index]}
+time=${times[$time_index]}
+
+echo "Running job $SLURM_ARRAY_TASK_ID with time=$time, nlayers=$nlayers, seed=$random_seed on host $(hostname)"
+
+python3 run_1D_vqc_LE.py \
+    --time "$time" \
+    --nlayers "$nlayers" \
+    --epochs 1000 \
+    --lr 0.1 \
+    --random_seed "$random_seed"
