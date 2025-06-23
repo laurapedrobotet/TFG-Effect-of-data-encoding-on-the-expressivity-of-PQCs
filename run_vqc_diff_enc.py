@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SOLUTION FOR BURGERS' EQUATION USING A VQC WITH 1 QUBIT
+# FITTING FOR 2D BURGERS' EQUATION USING A PQC WITH 1 QUBIT AND ALTERNATIVE ENCODING STRATEGY
 
 import argparse
 import os
@@ -24,7 +24,7 @@ import matplotlib.cm as cm
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="2D Burgers equation with Universal QML Circuit with batching"
+        description="2D Burgers' equation fitting with an alterbative encoding"
     )
     parser.add_argument(
         '--encoding', choices=["linear", "nonlinear"], default="linear",
@@ -55,19 +55,8 @@ def parse_args():
 
 # -------------------------------------- Extra functions ---------------------------
 
-# Latin Hypercube Samples for collocation points
 def generate_lhs_points(npoints, rng):
-    """
-    Inputs:
-    -----------
-    npoints (int): Number of sample points.
-    rng (np.random.Generator): A NumPy random number generator instance.
 
-    Outputs:
-    --------
-    x_tensor (torch.Tensor): 1D tensor of shape (npoints, 1) with values scaled in the range [-1, 1].
-    t_tensor (torch.Tensor): 1D tensor of shape (npoints, 1) with values scaled in the range [0, 1].
-    """
     sampler = LatinHypercube(d=2,  rng=rng) 
     samples = sampler.random(n=npoints) 
     x_lhs = -1 + 2 * samples[:, 0]     
@@ -80,20 +69,6 @@ def generate_lhs_points(npoints, rng):
 
 
 def compute_exact_solution(nu, L=1, Nx=500, T=1, dt=0.0001):
-    """
-    Inputs:
-    -----------
-    nu (float): Viscosity coefficient of the Burgers' equation.
-    L (float): Half-length of the spatial domain (the domain spans from -L to L). Default is 1.
-    Nx (int): Number of spatial intervals (number of grid points = Nx + 1). Default is 500.
-    T (float): Final time of the simulation. Default is 1.
-    dt (float): Time step size. Default is 0.0001.
-
-    Output:
-    --------
-    u_interp : A function that interpolates the solution u(x, t) at arbitrary (x, t) points within the computed domain using cubic interpolation.
-
-    """
 
     dx = 2 * L / Nx  
     Nt = round(T / dt)  
@@ -127,7 +102,6 @@ def compute_exact_solution(nu, L=1, Nx=500, T=1, dt=0.0001):
     return u_interp
 
 
-# Non-linear encoding
 def mix_basis_encoding(x, e, f, g, h, i):
 
     return e * x + f * np.arccos(x) + g * np.tanh(h * x + i)
@@ -214,7 +188,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     args = parse_args()
-    # Create a dictionary of all parsed arguments
     args_dict = vars(args)
 
     nlayers = args.nlayers
@@ -306,7 +279,7 @@ def main():
     with open(os.path.join(save_path, "configuration.json"), "w") as json_file:
         json.dump(args_dict, json_file, indent=4)
 
-    # Save final parameters in human-readable JSON format
+    # Save final parameters in JSON format
     param_dict = {f"Layer_{i+1}": layer_params.tolist() for i, layer_params in enumerate(params)}
     with open(os.path.join(save_path, "final_params.json"), "w") as f:
         json.dump(param_dict, f, indent=4)
