@@ -8,7 +8,6 @@ layers = [1, 2, 4, 6, 8, 10]
 seeds = range(10)
 epochs = 1000
 
-# Store results: {nlayers: [avg_variance_epoch0, epoch1, ..., epoch999]}
 layer_variance_curves = {}
 
 for nlayers in layers:
@@ -30,7 +29,7 @@ for nlayers in layers:
             gradients.append(grad.flatten())   # shape: (nlayers * 8,)
 
         if len(gradients) < 2:
-            epoch_variances.append(np.nan)  # not enough data to compute variance
+            epoch_variances.append(np.nan)  
             continue
 
         matrix = np.stack(gradients)        # shape: (n_seeds, nlayers * 8)
