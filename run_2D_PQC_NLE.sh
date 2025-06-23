@@ -2,7 +2,7 @@
 
 #SBATCH --chdir=/scratch/nas/4/laurap/pinn_qml/scripts
 #SBATCH --output=logs/nonlinearEnc50_%A_%a.out
-#SBATCH --job-name=nonlinear_vqc
+#SBATCH --job-name=nonlinear_PQC
 #SBATCH --array=0-59
 #SBATCH --mem=16G
 
@@ -17,7 +17,7 @@ random_seed=${seeds[$seed_index]}
 
 echo "Running job $SLURM_ARRAY_TASK_ID with nlayers=$nlayers and seed=$random_seed on host $(hostname)"
 
-python3 run_2D_vqc_general_enc.py \
+python3 run_2D_PQC_general_enc.py \
     --encoding nonlinear \
     --nlayers "$nlayers" \
     --npoints 1000 \
