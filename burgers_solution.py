@@ -67,9 +67,8 @@ plt.ylabel('u(x,t)', fontsize=12)
 plt.legend()
 plt.savefig(os.path.join(save_path, "Burgers.pdf"), bbox_inches="tight")
 
-# for i, ti in enumerate(t_selected):
-#     filename = f'burgers_solution_t{ti}.npy'
-#     data = {'x': x, 'u': U[:, t_indices[i]]}  
-#     np.save(filename, data)
-#     print(f'Archivo guardado: {filename}')
+for i, ti in enumerate(t_selected):
+    filename = f'burgers_solution_t{ti}.npy'
+    data = {'x': x, 'u': U[:, t_indices[i]]}  
+    np.save(filename, data)
 
