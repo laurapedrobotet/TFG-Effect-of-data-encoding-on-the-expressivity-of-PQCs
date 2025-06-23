@@ -2,7 +2,7 @@
 
 #SBATCH --chdir=/scratch/nas/4/laurap/pinn_qml/scripts
 #SBATCH --output=logs/nonlinearDifEnc_%A_%a.out
-#SBATCH --job-name=nonlinear_vqc_diff
+#SBATCH --job-name=nonlinear_PQC_diff
 #SBATCH --array=0-59
 #SBATCH --mem=16G
 
@@ -17,7 +17,7 @@ random_seed=${seeds[$seed_index]}
 
 echo "Running job $SLURM_ARRAY_TASK_ID with nlayers=$nlayers and seed=$random_seed on host $(hostname)"
 
-python3 run_vqc_diff_enc.py \
+python3 run_PQC_diff_enc.py \
     --encoding nonlinear \
     --nlayers "$nlayers" \
     --npoints 1000 \
