@@ -1,4 +1,4 @@
-# SOLUTION FOR BURGERS' EQUATION USING A VQC WITH 1 QUBIT
+# FITTING FOR BURGERS' EQUATION USING A PQC WITH 1 QUBIT AND DIFFERENT ENCODING STRATEGIES
 
 import os
 
@@ -26,7 +26,7 @@ import matplotlib.cm as cm
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="2D Burgers equation with Universal QML Circuit with batching"
+        description="2D Burgers' equation fitting with selected encoding strategy"
     )
     parser.add_argument(
         '--encoding', choices=["linear", "nonlinear"], default="linear",
@@ -59,17 +59,6 @@ def parse_args():
 
 # Latin Hypercube Samples for collocation points
 def generate_lhs_points(npoints, rng):
-    """
-    Inputs:
-    -----------
-    npoints (int): Number of sample points.
-    rng (np.random.Generator): A NumPy random number generator instance.
-
-    Outputs:
-    --------
-    x_tensor (torch.Tensor): 1D tensor of shape (npoints, 1) with values scaled in the range [-1, 1].
-    t_tensor (torch.Tensor): 1D tensor of shape (npoints, 1) with values scaled in the range [0, 1].
-    """
     sampler = LatinHypercube(d=2,  rng=rng) 
     samples = sampler.random(n=npoints) 
     x_lhs = -1 + 2 * samples[:, 0]     
@@ -82,20 +71,6 @@ def generate_lhs_points(npoints, rng):
 
 
 def compute_exact_solution(nu, L=1, Nx=500, T=1, dt=0.0001):
-    """
-    Inputs:
-    -----------
-    nu (float): Viscosity coefficient of the Burgers' equation.
-    L (float): Half-length of the spatial domain (the domain spans from -L to L). Default is 1.
-    Nx (int): Number of spatial intervals (number of grid points = Nx + 1). Default is 500.
-    T (float): Final time of the simulation. Default is 1.
-    dt (float): Time step size. Default is 0.0001.
-
-    Output:
-    --------
-    u_interp : A function that interpolates the solution u(x, t) at arbitrary (x, t) points within the computed domain using cubic interpolation.
-
-    """
     # dt=0.0001
     dx = 2 * L / Nx  
     Nt = round(T / dt)  
@@ -129,34 +104,13 @@ def compute_exact_solution(nu, L=1, Nx=500, T=1, dt=0.0001):
     return u_interp
 
 
-# Non-linear encoding
 def scaled_tanh_encoding(x, a, b):
-    """
-    Inputs:
-    -----------
-    x (array-like or float): Input values to encode.
-    a (float): Scaling factor applied inside the tanh.
-    b (float): Bias term applied inside the tanh.
 
-    Output:
-    --------
-    encoded (array-like or float): Output values scaled to the range [0, π].
-    """
     return (np.pi/2) * (np.tanh(a * x + b) + 1)
 
 
 def linear_encoding(t, c, d):
-    """
-    Inputs:
-    -----------
-    t (array-like or float): Input values to encode.
-    c (float): Scaling factor.
-    d (float): Bias added after scaling.
 
-    Output:
-    --------
-    encoded (array-like or float): Output values clipped to [0, π].
-    """
     return np.clip(c * t + d, 0, np.pi)
 
 
@@ -230,7 +184,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     args = parse_args()
-    # Create a dictionary of all parsed arguments
     args_dict = vars(args)
 
     nlayers = args.nlayers
@@ -322,7 +275,7 @@ def main():
     with open(os.path.join(save_path, "configuration.json"), "w") as json_file:
         json.dump(args_dict, json_file, indent=4)
 
-    # Save final parameters in human-readable JSON format
+    # Save final parameters in JSON format
     param_dict = {f"Layer_{i+1}": layer_params.tolist() for i, layer_params in enumerate(params)}
     with open(os.path.join(save_path, "final_params.json"), "w") as f:
         json.dump(param_dict, f, indent=4)
@@ -408,67 +361,6 @@ def main():
     plt.ylabel("t")
     plt.legend()
     plt.savefig(os.path.join(save_path, "Error_scatter.pdf"), bbox_inches="tight")
-
-    
-    # Heat map
-    x_all = np.concatenate([x_train_np, x_test_np])
-    t_all = np.concatenate([t_train_np, t_test_np])
-    error_all = np.concatenate([error_train, error_test])
-
-    # Create interpolation grid
-    xi = np.linspace(-1, 1, 200)
-    ti = np.linspace(0, 1, 200)
-    Xi, Ti = np.meshgrid(xi, ti)
-
-    Ei = griddata(
-        points=(x_all, t_all),
-        values=error_all,
-        xi=(Xi, Ti),
-        method='linear'
-    )
-
-    # Plot heatmap 1
-    plt.figure(figsize=(10, 6))
-    plt.imshow(Ei, vmin=-0.5, vmax=0.5, cmap="bwr",
-            extent=[-1, 1, 0, 1],  # [x_min, x_max, t_min, t_max]
-            #origin='lower',       # Places t=0 at the bottom
-            aspect='auto')        # Avoids stretching
-    cbar = plt.colorbar()
-    cbar.set_label("Error prediction", fontsize=10)
-    plt.xlabel("x")
-    plt.ylabel("t")
-    plt.savefig(os.path.join(save_path, "Error_heatmap_imshow.pdf"), bbox_inches="tight")
-    plt.show()
-
-
-    # Plot heatmap 2
-    plt.figure(figsize=(10, 6))
-    plt.imshow(Ei,vmin=-0.5,vmax=0.5,cmap="bwr")
-    cbar = plt.colorbar()
-    cbar.set_label("Error prediction", fontsize=10)
-    plt.xlabel("x")
-    plt.ylabel("t")
-    plt.savefig(os.path.join(save_path, "Error_heatmap.pdf"), bbox_inches="tight")
-    plt.show()
-
-
-    # Heat map with the absolute value of the error 
-    abs_error_all = np.concatenate([abs_error_train, abs_error_test])
-    
-    Ei_abs = griddata(
-        points=(x_all, t_all),
-        values=abs_error_all,
-        xi=(Xi, Ti),
-        method='linear'
-    )
-
-    plt.figure(figsize=(10, 6))
-    plt.contourf(Xi, Ti, Ei_abs, levels=100, cmap="inferno")
-    cbar = plt.colorbar()
-    cbar.set_label("Prediction absolute error", fontsize=10)
-    plt.xlabel("x")
-    plt.ylabel("t")
-    plt.savefig(os.path.join(save_path, "Abs_Error_heatmap.pdf"), bbox_inches="tight")
 
 
 if __name__ == '__main__':
