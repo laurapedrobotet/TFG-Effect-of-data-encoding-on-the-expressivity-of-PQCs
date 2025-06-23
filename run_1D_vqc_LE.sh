@@ -2,7 +2,7 @@
 
 #SBATCH --chdir=/scratch/nas/4/laurap/pinn_qml/scripts
 #SBATCH --output=logs/LE_1D_%A_%a.out
-#SBATCH --job-name=1D_L_vqc
+#SBATCH --job-name=1D_L_PQC
 #SBATCH --array=0-239  # # 6 layers * 10 seeds * 4 times 
 #SBATCH --mem=16G
 
@@ -24,7 +24,7 @@ time=${times[$time_index]}
 
 echo "Running job $SLURM_ARRAY_TASK_ID with time=$time, nlayers=$nlayers, seed=$random_seed on host $(hostname)"
 
-python3 run_1D_vqc_LE.py \
+python3 run_1D_PQC_LE.py \
     --time "$time" \
     --nlayers "$nlayers" \
     --epochs 1000 \
