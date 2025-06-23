@@ -45,7 +45,7 @@ for time in times:
             std_log_mean_loss = np.std(log_losses)
             summary_log_data[time][encoding].append((log_mean_loss, std_log_mean_loss))
 
-    # Plot individual por tiempo (log con barras simétricas)
+    # Plot individual 
     plt.figure(figsize=(5, 5*6/8))
     for encoding in encodings:
         log_means = [x[0] for x in summary_log_data[time][encoding]]
@@ -66,7 +66,7 @@ for time in times:
     plt.savefig(os.path.join(plot_dir, f"1D_sym_log_t{time}.pdf"))
     plt.close()
 
-# Plot resumen tipo grid (2x2)
+# Subplot
 fig, axs = plt.subplots(2, 2, figsize=(10, 8), sharex=True, sharey=True)
 axs = axs.flatten()
 
