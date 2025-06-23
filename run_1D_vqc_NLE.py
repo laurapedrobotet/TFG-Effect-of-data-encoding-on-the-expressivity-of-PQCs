@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# FITTING FOR BURGERS' EQUATION USING A PQC WITH 1 QUBIT
+# FITTING FOR BURGERS' EQUATION USING A PQC WITH 1 QUBIT AND NONLINEAR ENCODING STRATEGY
 
 import os
 
@@ -26,7 +26,7 @@ import matplotlib.cm as cm
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="1D Burgers' equation fitting"
+        description="1D Burgers' equation fitting with nonlinear encoding strategy"
     )
     parser.add_argument(
         "--time", type=float, default=0,
