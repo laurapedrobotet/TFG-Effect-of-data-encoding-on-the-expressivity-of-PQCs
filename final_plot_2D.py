@@ -40,38 +40,6 @@ for encoding in encodings:
         log_results[encoding].append((log_mean_loss, std_log_mean_loss))
 
 
-
-# plt.figure(figsize=(10, 6))
-plt.figure(figsize=(5, 5*6/8))
-
-for encoding in encodings:
-    means = [x[0] for x in results[encoding]]
-    stds = [x[1] for x in results[encoding]]
-    plt.errorbar(layers, means, yerr=stds, label=f"{encoding.capitalize()} encoding",
-                 color=colors[encoding], marker='o', capsize=5)
-
-
-plt.xlabel("#Layers", fontsize=12)
-plt.ylabel("$\epsilon$ (MSE)", fontsize=12)
-plt.legend(fontsize=12)
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.tight_layout()
-output_file = os.path.join(plot_dir, "final_plot.pdf")
-plt.savefig(output_file)
-
-# Log scale
-plt.xlabel("#Layers", fontsize=12)
-plt.ylabel("$\epsilon$ (Mean of minimum test MSE over seeds)", fontsize=12)
-plt.yscale("log")
-plt.legend(fontsize=12)
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.tight_layout()
-output_file = os.path.join(plot_dir, "log_final_plot.pdf")
-plt.savefig(output_file)
-
-
-# Symmetric error bars in log scale
-# plt.figure(figsize=(10, 6))
 plt.figure(figsize=(5, 5*6/8))
 
 for encoding in encodings:
@@ -86,10 +54,6 @@ for encoding in encodings:
     plt.errorbar(layers, means, yerr=yerr, label=f"{encoding.capitalize()} encoding",
                  color=colors[encoding], marker='o', capsize=5, alpha=0.75)
 
-    # # Overlay marker with black edge
-    # plt.plot(layers, means, marker='o', linestyle='None',
-    #          markerfacecolor=colors[encoding], markeredgecolor='black',
-    #          markeredgewidth=1.5)
 
 plt.xlabel("#Layers", fontsize=12)
 plt.ylabel("$\epsilon$ (MSE)", fontsize=12)
@@ -97,5 +61,5 @@ plt.yscale("log")
 plt.legend(fontsize=12)
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
-output_file = os.path.join(plot_dir, "sym_log_final_plot_no_black_borders.pdf")
+output_file = os.path.join(plot_dir, "sym_log_final_plot.pdf")
 plt.savefig(output_file)
