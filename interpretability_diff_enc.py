@@ -3,23 +3,20 @@ import os
 import matplotlib
 import matplotlib.pyplot as plt
 
-# List of depths (number of layers)
 layer_list = [1, 2, 4, 6, 8, 10]
 
-# Folder base — adjust if needed
 base_path = "../results_diff_enc_50/nonlinearEnc_{L}layers_1000data_1000epochs_0.1lr_2rng"
 save_path = "../results_diff_enc_50"
+
 # Storage for mean absolute values of a, b, c across layers
 a_means, b_means, c_means = [], [], []
 
 for L in layer_list:
     print(f"\nProcessing L = {L}")
 
-    # Format experiment directory path
     exp_dir = base_path.format(L=L)
     params_dir = os.path.join(exp_dir, "params")
 
-    # Load test losses
     test_loss_path = os.path.join(exp_dir, "test_losses.npy")
     if not os.path.exists(test_loss_path):
         print(f"  Warning: test_losses not found for L={L}")
@@ -51,8 +48,7 @@ for L in layer_list:
     b_means.append(np.mean(b_vals))
     c_means.append(np.mean(c_vals))
 
-# === Plot ===
-# plt.figure(figsize=(8, 5))
+# Plotting
 plt.figure(figsize=(5, 5*6/8))
 plt.plot(layer_list, a_means, '-o', label='|a| (Fourier)', linewidth=2)
 plt.plot(layer_list, b_means, '-s', label='|b| (Chebyshev)', linewidth=2)
