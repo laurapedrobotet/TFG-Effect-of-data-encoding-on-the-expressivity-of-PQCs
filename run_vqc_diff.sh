@@ -6,11 +6,9 @@
 #SBATCH --array=0-59
 #SBATCH --mem=16G
 
-# Layer and seed lists
 layers=(1 2 4 6 8 10)
 seeds=($(seq 0 9))
 
-# Compute indices
 layer_index=$((SLURM_ARRAY_TASK_ID / 10))
 seed_index=$((SLURM_ARRAY_TASK_ID % 10))
 
